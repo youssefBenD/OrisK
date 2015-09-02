@@ -1,0 +1,43 @@
+<div class="jumbotron text-center">
+   <h1>Signaler Impaye</h1>
+   <div class="row mt">
+      <div class="col-lg-12">
+         <div class="form-panel">
+            <h4 class="mb"><i class="fa fa-angle-right"></i> Veuillez remplir les champs suivants:</h4>
+            <form ng-submit="submit()" name="sampleForm" class="form-horizontal style-form" novalidate >
+              
+               <div class="form-group">
+                  <label class="col-sm-2 col-sm-2 control-label">Identifiant Client</label>
+                  <div class="col-sm-10">
+                     <input ng-model="id" name="id" type="text" class="form-control round-form" required >
+                    <span ng-show="sampleForm.username.$error.required">Identifiant Client is required.</span>
+
+                  </div>
+               </div>
+                <div class="form-group">
+                  <label class="col-sm-2 col-sm-2 control-label">Montant</label>
+                  <div class="col-sm-10">
+                     <input ng-model="montant" name="montant" type="text" class="form-control round-form">
+                  </div>
+               </div>
+<!--                <div class="form-group">
+                  <label class="col-sm-2 col-sm-2 control-label">Type Client</label>
+                  <div class="col-sm-10">
+                     <select ng-model="type" class="form-control">
+						  <option>Personne Morale</option>
+						  <option>Personne Physique</option>
+                    </select>
+                  </div>
+               </div>-->
+                <button type="submit" id="submit" value="Submit" class="btn btn-primary btn-lg btn-block">Signaler</button>
+
+               
+
+               
+            </form>
+         </div>
+      </div>
+      <!-- col-lg-12-->      	
+   </div>
+   <!-- /row -->
+</div>
