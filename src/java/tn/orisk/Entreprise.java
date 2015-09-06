@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -35,15 +36,6 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Entreprise.findByMatriculeFiscale", query = "SELECT e FROM Entreprise e WHERE e.matriculeFiscale = :matriculeFiscale"),
     @NamedQuery(name = "Entreprise.findByRaisonSociale", query = "SELECT e FROM Entreprise e WHERE e.raisonSociale = :raisonSociale")})
 public class Entreprise implements Serializable {
-    @OneToMany(mappedBy = "entrepriseId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private Collection<SiegeSocial> siegeSocialCollection;
-    @OneToMany(mappedBy = "entrepriseId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private Collection<Filiale> filialeCollection;
-    @OneToMany(mappedBy = "entreprise", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JsonManagedReference
-    private Collection<Abonnement> abonnementCollection;
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -51,12 +43,26 @@ public class Entreprise implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "entreprise_id")
     private String entrepriseId;
+    
     @Size(max = 2147483647)
     @Column(name = "matricule_fiscale")
     private String matriculeFiscale;
+    
     @Size(max = 2147483647)
     @Column(name = "raison_sociale")
     private String raisonSociale;
+    
+    @OneToOne(mappedBy = "entrepriseId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private SiegeSocial siegeSocial;
+    
+    @OneToMany(mappedBy = "entrepriseId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private Collection<Filiale> filialeCollection;
+    
+    @OneToMany(mappedBy = "entreprise", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private Collection<Abonnement> abonnementCollection;
 
     public Entreprise() {
     }
@@ -123,13 +129,12 @@ public class Entreprise implements Serializable {
         this.abonnementCollection = abonnementCollection;
     }
 
-    @XmlTransient
-    public Collection<SiegeSocial> getSiegeSocialCollection() {
-        return siegeSocialCollection;
+    public SiegeSocial getSiegeSocialCollection() {
+        return siegeSocial;
     }
 
-    public void setSiegeSocialCollection(Collection<SiegeSocial> siegeSocialCollection) {
-        this.siegeSocialCollection = siegeSocialCollection;
+    public void setSiegeSocialCollection(SiegeSocial siegeSocialCollection) {
+        this.siegeSocial = siegeSocialCollection;
     }
 
     @XmlTransient

@@ -19,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.PathSegment;
 import tn.orisk.Abonnement;
 import tn.orisk.AbonnementPK;
+import tn.orisk.Pack;
 
 /**
  *

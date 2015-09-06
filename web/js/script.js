@@ -16,7 +16,12 @@ scotchApp.config(function($routeProvider) {
         templateUrl: 'pages/clients.html',
         controller: 'clientsController'
     })
-    
+
+    .when('/abonnement', {
+        templateUrl: 'pages/abonnement.html',
+        controller: 'abonnementController'
+    })
+
     .when('/entreprises', {
         templateUrl: 'pages/entreprises.html',
         controller: 'entreprisesController'
@@ -40,9 +45,28 @@ scotchApp.config(function($routeProvider) {
 });
 
 // create the controller and inject Angular's $scope
-scotchApp.controller('mainController', function($scope) {
+scotchApp.controller('mainController', function($scope, $http) {
     // create a message to display in our view
-    $scope.message = 'Everyone come and see how good I look!';
+    var userId = sessionStorage.getItem("userId");
+    var role = sessionStorage.getItem("role");
+    $http.get("http://localhost:8080/0risk/webresources/filiale/findEntrprise/" + userId, {
+            cache: false,
+            crossDomain: true,
+            headers: {
+                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                "auth_token": sessionStorage.auth_token
+            },
+            dataType: "json"
+        })
+        .success(function(response) {
+            $scope.entreprise = response;
+            if (role == "siege_social") {
+                var entreprise = jQuery.parseJSON(JSON.stringify(response));
+                $scope.filiale = entreprise.siegeSocialCollection;
+                $scope.role = role;
+            }
+        }).
+    error(function(data, status, headers, config) {});
 });
 
 scotchApp.controller('signalerImpayeController', function($scope, $http) {
@@ -67,8 +91,8 @@ scotchApp.controller('signalerImpayeController', function($scope, $http) {
             data: impaye
         }).success(function(response) {
             alert("signalement effectue avec succes ")
-        }). error(function(data, status, headers, config) {
-            alert("Erreur: "+status);
+        }).error(function(data, status, headers, config) {
+            alert("Erreur: " + status);
         });
         $scope.id = "";
         $scope.montant = "";
@@ -84,7 +108,8 @@ scotchApp.controller('clientsController', function($scope, $http) {
             pad = function(val, len) {
                 val = String(val);
                 len = len || 2;
-                while (val.length < len) val = "0" + val;
+                while (val.length < len)
+                    val = "0" + val;
                 return val;
             };
 
@@ -100,7 +125,8 @@ scotchApp.controller('clientsController', function($scope, $http) {
 
             // Passing date through Date applies Date.parse, if necessary
             date = date ? new Date(date) : new Date;
-            if (isNaN(date)) throw SyntaxError("invalid date");
+            if (isNaN(date))
+                throw SyntaxError("invalid date");
 
             mask = String(dF.masks[mask] || mask || dF.masks["default"]);
 
@@ -188,7 +214,7 @@ scotchApp.controller('clientsController', function($scope, $http) {
     Date.prototype.format = function(mask, utc) {
         return dateFormat(this, mask, utc);
     };
-    
+
     $http({
         method: 'get',
         url: "http://localhost:8080/0risk/webresources/client/findAll",
@@ -196,25 +222,25 @@ scotchApp.controller('clientsController', function($scope, $http) {
             date: $scope.currentDate
         },
         headers: {
-                'Cache-Control': 'no-cache',
-                'Pragma':'no-cache'
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
         }
-    }).success(function (response) {
+    }).success(function(response) {
         var clients = jQuery.parseJSON(JSON.stringify(response));
-            for (var i = 0; i < clients.length; i++) {
-                if (typeof clients[i].impayeCollection[0] != 'undefined') {
-                    var dateAjout = clients[i].impayeCollection[0].dateAjout;
-                    newDateAjout = new Date(dateAjout);
-                    clients[i].impayeCollection[0].dateAjout = newDateAjout;
-                    clients[i].impayeCollection[0].datePaiement = newDateAjout;
-                };
+        for (var i = 0; i < clients.length; i++) {
+            if (typeof clients[i].impayeCollection[0] != 'undefined') {
+                var dateAjout = clients[i].impayeCollection[0].dateAjout;
+                newDateAjout = new Date(dateAjout);
+                clients[i].impayeCollection[0].dateAjout = newDateAjout;
+                clients[i].impayeCollection[0].datePaiement = newDateAjout;
             };
-            $scope.clients = clients; 
-    }). error(function(data, status, headers, config) {
+        };
+        $scope.clients = clients;
+    }).error(function(data, status, headers, config) {
         alert("Connexion Failed");
     });
-  
-   
+
+
 
     $scope.deleteImpaye = function(clientId) {
         $http({
@@ -263,8 +289,75 @@ scotchApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
 });
 
-scotchApp.controller('entreprisesController', function($scope) {
+scotchApp.controller('abonnementController', function($scope, $http) {
+    var userId = sessionStorage.getItem("userId");
+    var role = sessionStorage.getItem("role");
+    $http.get("http://localhost:8080/0risk/webresources/filiale/findEntrprise/" + userId, {
+            cache: false,
+            crossDomain: true,
+            headers: {
+                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                "auth_token": sessionStorage.auth_token
+            },
+            dataType: "json"
+        })
+        .success(function(response) {
+            var idEntreprise = response.entrepriseId;
+            $scope.nomEntreprise = response.raisonSociale;
+            var abonnement = jQuery.parseJSON(JSON.stringify(response.abonnementCollection));
+            $http.get("http://localhost:8080/0risk/webresources/pack/" + abonnement[0].abonnementPK.packId, {
+                    cache: false,
+                    crossDomain: true,
+                    headers: {
+                        "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                        "auth_token": sessionStorage.auth_token
+                    },
+                    dataType: "json"
+                })
+                .success(function(response) {
+                    abonnement[0].datePaiement = (formattedDate(abonnement[0].datePaiement));
+                    abonnement[0].dateExpiration = (formattedDate(abonnement[0].dateExpiration));
+                    $scope.pack = response;
+                    $scope.abonnement = abonnement[0];
+                    $http.get("http://localhost:8080/0risk/webresources/entreprise/nombreFiliale/" + idEntreprise, {
+                            cache: false,
+                            crossDomain: true,
+                            headers: {
+                                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                                "auth_token": sessionStorage.auth_token
+                            },
+                            dataType: "json"
+                        })
+                        .success(function(response) {
+                            console.log("*****"+response);
+                        }).
+                    error(function(data, status, headers, config) {
+                        console.log("Erreur Connexion")
+                    });
+
+                    function formattedDate(date) {
+                        var d = new Date(date),
+                            month = '' + (d.getMonth() + 1),
+                            day = '' + d.getDate(),
+                            year = d.getFullYear();
+
+                        if (month.length < 2) month = '0' + month;
+                        if (day.length < 2) day = '0' + day;
+
+                        return [day, month, year].join('/');
+                    }
+                }).
+            error(function(data, status, headers, config) {
+                console.log("Erreur Connexion")
+            });
+
+        }).
+    error(function(data, status, headers, config) {
+        console.log("Erreur Connexion")
+    });
 });
+
+scotchApp.controller('entreprisesController', function($scope) {});
 
 scotchApp.controller('rechercheCibleeController', function($scope, $http) {
 

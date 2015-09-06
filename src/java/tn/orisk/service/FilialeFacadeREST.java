@@ -4,10 +4,12 @@
  */
 package tn.orisk.service;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,7 +18,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import tn.orisk.Entreprise;
 import tn.orisk.Filiale;
+import tn.orisk.util.Util;
 
 /**
  *
@@ -25,6 +29,7 @@ import tn.orisk.Filiale;
 @Stateless
 @Path("filiale")
 public class FilialeFacadeREST extends AbstractFacade<Filiale> {
+
     @PersistenceContext(unitName = "0riskPU")
     private EntityManager em;
 
@@ -60,6 +65,13 @@ public class FilialeFacadeREST extends AbstractFacade<Filiale> {
     }
 
     @GET
+    @Path("findEntrprise/{id}")
+    @Produces({"application/json"})
+    public Entreprise findEntrprise(@PathParam("id") String id) {
+        return super.find(id).getEntrepriseId();
+    }
+
+    @GET
     @Path("findAll")
     @Override
     @Produces({"application/json"})
@@ -85,5 +97,4 @@ public class FilialeFacadeREST extends AbstractFacade<Filiale> {
     protected EntityManager getEntityManager() {
         return em;
     }
-    
 }

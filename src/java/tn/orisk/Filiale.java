@@ -38,12 +38,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Filiale.findByTelephone", query = "SELECT f FROM Filiale f WHERE f.telephone = :telephone"),
     @NamedQuery(name = "Filiale.findByAdresse", query = "SELECT f FROM Filiale f WHERE f.adresse = :adresse")})
 public class Filiale implements Serializable {
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filiale")
-    private Collection<Recherche> rechercheCollection;
-    @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id")
-    @ManyToOne
-    @JsonBackReference
-    private Entreprise entrepriseId;
+    
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -51,19 +46,38 @@ public class Filiale implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "filiale_id")
     private String filialeId;
+    
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 2147483647)
     @Column(name = "email")
     private String email;
+    
     @Size(max = 2147483647)
     @Column(name = "password")
     private String password;
+    
     @Size(max = 2147483647)
     @Column(name = "telephone")
     private String telephone;
+    
     @Size(max = 2147483647)
     @Column(name = "adresse")
     private String adresse;
+    
+    @Size(max = 2147483647)
+    @Column(name = "code")
+    private String code;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filiale")
+    private Collection<Recherche> rechercheCollection;
+    
+    @OneToMany(mappedBy = "filialeId")
+    private Collection<Impaye> impayeCollection;
+    
+    @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id")
+    @ManyToOne
+    @JsonBackReference
+    private Entreprise entrepriseId;
 
     public Filiale() {
     }
@@ -74,6 +88,14 @@ public class Filiale implements Serializable {
 
     public String getFilialeId() {
         return filialeId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void setFilialeId(String filialeId) {
@@ -153,5 +175,16 @@ public class Filiale implements Serializable {
     public void setEntrepriseId(Entreprise entrepriseId) {
         this.entrepriseId = entrepriseId;
     }
+
+    @XmlTransient
+    public Collection<Impaye> getImpayeCollection() {
+        return impayeCollection;
+    }
+
+    public void setImpayeCollection(Collection<Impaye> impayeCollection) {
+        this.impayeCollection = impayeCollection;
+    }
+
+   
     
 }

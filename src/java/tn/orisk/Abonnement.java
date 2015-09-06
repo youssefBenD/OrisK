@@ -37,18 +37,24 @@ public class Abonnement implements Serializable {
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected AbonnementPK abonnementPK;
+    
     @Column(name = "date_expiration")
     @Temporal(TemporalType.DATE)
     private Date dateExpiration;
+    
     @Column(name = "date_paiement")
     @Temporal(TemporalType.DATE)
     private Date datePaiement;
+    
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "prix_ht")
     private Double prixHt;
+    
     @JoinColumn(name = "pack_id", referencedColumnName = "pack_id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
+    @JsonBackReference
     private Pack pack;
+    
     @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id", insertable = false, updatable = false)
     @ManyToOne(optional = false)
     @JsonBackReference

@@ -4,6 +4,7 @@
  */
 package tn.orisk;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -33,21 +34,28 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Recherche.findByDate", query = "SELECT r FROM Recherche r WHERE r.date = :date"),
     @NamedQuery(name = "Recherche.findByCleRecherche", query = "SELECT r FROM Recherche r WHERE r.cleRecherche = :cleRecherche")})
 public class Recherche implements Serializable {
-    @JoinColumn(name = "filiale_id", referencedColumnName = "filiale_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private Filiale filiale;
-    @JoinColumn(name = "client_id", referencedColumnName = "client_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private Client client;
+   
     private static final long serialVersionUID = 1L;
     @EmbeddedId
     protected RecherchePK recherchePK;
+    
     @Column(name = "date")
     @Temporal(TemporalType.DATE)
     private Date date;
+    
     @Size(max = 2147483647)
     @Column(name = "cle_recherche")
     private String cleRecherche;
+    
+    @JoinColumn(name = "filiale_id", referencedColumnName = "filiale_id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JsonBackReference
+    private Filiale filiale;
+    
+    @JoinColumn(name = "client_id", referencedColumnName = "client_id", insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    @JsonBackReference
+    private Client client;
 
     public Recherche() {
     }

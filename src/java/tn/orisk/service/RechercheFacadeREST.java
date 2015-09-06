@@ -85,6 +85,7 @@ public class RechercheFacadeREST extends AbstractFacade<Recherche> {
     }
 
     @GET
+    @Path("findAll")
     @Override
     @Produces({"application/json"})
     public List<Recherche> findAll() {

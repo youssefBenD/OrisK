@@ -41,7 +41,7 @@ import javax.persistence.SequenceGenerator;
     @NamedQuery(name = "Impaye.findByDateAjout", query = "SELECT i FROM Impaye i WHERE i.dateAjout = :dateAjout"),
     @NamedQuery(name = "Impaye.findByDatePaiement", query = "SELECT i FROM Impaye i WHERE i.datePaiement = :datePaiement")})
 public class Impaye implements Serializable {
-
+    
     private static final long serialVersionUID = 1L;
     @Id
     @SequenceGenerator(name = "sequence",
@@ -53,19 +53,37 @@ public class Impaye implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "impaye_id")
     private String impayeId;
+    
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "montant")
     private Double montant;
+    
     @Column(name = "date_ajout")
     @Temporal(TemporalType.DATE)
     private Date dateAjout;
+    
+    @Column(name = "date_echeance")
+    @Temporal(TemporalType.DATE)
+    private Date dateEcheance;
+    
     @Column(name = "date_paiement")
     @Temporal(TemporalType.DATE)
     private Date datePaiement;
+    
+    @Size(max = 2147483647)
+    @Column(name = "type")
+    private String type;
+    
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "client_id", referencedColumnName = "client_id")
     @JsonBackReference
     private Client clientId;
+    
+    @JoinColumn(name = "filiale_id", referencedColumnName = "filiale_id")
+    @ManyToOne
+    @JsonBackReference
+    private Filiale filialeId;
+    
 
     public Impaye() {
     }
@@ -77,6 +95,24 @@ public class Impaye implements Serializable {
     public String getImpayeId() {
         return impayeId;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Date getDateEcheance() {
+        return dateEcheance;
+    }
+
+    public void setDateEcheance(Date dateEcheance) {
+        this.dateEcheance = dateEcheance;
+    }
+    
+    
 
     public void setImpayeId(String impayeId) {
         this.impayeId = impayeId;
@@ -122,22 +158,21 @@ public class Impaye implements Serializable {
     }
 
     @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Impaye)) {
-            return false;
-        }
-        Impaye other = (Impaye) object;
-        if ((this.impayeId == null && other.impayeId != null) || (this.impayeId != null && !this.impayeId.equals(other.impayeId))) {
-            return false;
-        }
-        return true;
+    public String toString() {
+        return "Impaye{" + "impayeId=" + impayeId + ", type=" + type + ", montant=" + montant + ", dateAjout=" + dateAjout + ", dateEcheance=" + dateEcheance + ", datePaiement=" + datePaiement + ", clientId=" + clientId + '}';
     }
 
-    @Override
-    public String toString() {
-        return "Impaye{" + "impayeId=" + impayeId + ", montant=" + montant + ", dateAjout=" + dateAjout + ", datePaiement=" + datePaiement + ", clientId=" + clientId + '}';
+
+    public Filiale getFilialeId() {
+        return filialeId;
     }
+
+    public void setFilialeId(Filiale filialeId) {
+        this.filialeId = filialeId;
+    }
+
+    
+
 
     
 }

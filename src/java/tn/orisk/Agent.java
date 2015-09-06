@@ -121,7 +121,9 @@ public class Agent implements Serializable {
 
     @Override
     public String toString() {
-        return "tn.zero.risk.Agent[ agentId=" + agentId + " ]";
+        return "Agent{" + "agentId=" + agentId + ", nom=" + nom + ", prenom=" + prenom + ", email=" + email + ", password=" + password + '}';
     }
+
+    
     
 }

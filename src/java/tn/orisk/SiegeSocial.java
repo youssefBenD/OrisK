@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -34,10 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "SiegeSocial.findByTelephone", query = "SELECT s FROM SiegeSocial s WHERE s.telephone = :telephone"),
     @NamedQuery(name = "SiegeSocial.findByAdresse", query = "SELECT s FROM SiegeSocial s WHERE s.adresse = :adresse")})
 public class SiegeSocial implements Serializable {
-    @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id")
-    @ManyToOne
-    @JsonBackReference
-    private Entreprise entrepriseId;
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -45,19 +42,32 @@ public class SiegeSocial implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "filiale_id")
     private String filialeId;
+    
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 2147483647)
     @Column(name = "email")
     private String email;
+    
     @Size(max = 2147483647)
     @Column(name = "password")
     private String password;
+    
     @Size(max = 2147483647)
     @Column(name = "telephone")
     private String telephone;
+    
     @Size(max = 2147483647)
     @Column(name = "adresse")
     private String adresse;
+    
+    @Size(max = 2147483647)
+    @Column(name = "code")
+    private String code;
+    
+    @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id")
+    @OneToOne
+    @JsonBackReference
+    private Entreprise entrepriseId;
 
     public SiegeSocial() {
     }
@@ -68,6 +78,14 @@ public class SiegeSocial implements Serializable {
 
     public String getFilialeId() {
         return filialeId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public void setFilialeId(String filialeId) {
@@ -138,5 +156,7 @@ public class SiegeSocial implements Serializable {
     public void setEntrepriseId(Entreprise entrepriseId) {
         this.entrepriseId = entrepriseId;
     }
+
+   
     
 }

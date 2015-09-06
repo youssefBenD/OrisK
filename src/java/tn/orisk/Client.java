@@ -45,13 +45,18 @@ public class Client implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "client_id")
     private String clientId;
+    
     // @Pattern(regexp="[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", message="Invalid email")//if the field contains email address consider using this annotation to enforce field validation
     @Size(max = 2147483647)
     @Column(name = "email")
     private String email;
+    
+    @Column(name = "raison_fiscale")
+    private String raisonFiscale;
     @Size(max = 2147483647)
     @Column(name = "type")
     private String type;
+    
     @OneToMany(mappedBy = "clientId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private Collection<Impaye> impayeCollection;
@@ -73,6 +78,14 @@ public class Client implements Serializable {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getRaisonFiscale() {
+        return raisonFiscale;
+    }
+
+    public void setRaisonFiscale(String raisonFiscale) {
+        this.raisonFiscale = raisonFiscale;
     }
 
     public void setEmail(String email) {
@@ -117,9 +130,9 @@ public class Client implements Serializable {
 
     @Override
     public String toString() {
-        return "Client{" + "rechercheCollection=" + rechercheCollection + ", clientId=" + clientId + ", email=" + email + ", type=" + type + ", impayeCollection=" + impayeCollection + '}';
+        return "Client{" + "rechercheCollection=" + rechercheCollection + ", clientId=" + clientId + ", email=" + email + ", raisonFiscale=" + raisonFiscale + ", type=" + type + ", impayeCollection=" + impayeCollection + '}';
     }
-
+    
     
 
     @XmlTransient

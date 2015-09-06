@@ -5,13 +5,9 @@
 package tn.orisk.service;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.Stateless;
-import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,35 +16,33 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import tn.orisk.Entreprise;
-import tn.orisk.security.business.DemoAuthenticator;
+import tn.orisk.Authentification;
 
 /**
  *
  * @author user
  */
 @Stateless
-@Path("entreprise")
-public class EntrepriseFacadeREST extends AbstractFacade<Entreprise> {
-
+@Path("tn.orisk.authentification")
+public class AuthentificationFacadeREST extends AbstractFacade<Authentification> {
     @PersistenceContext(unitName = "0riskPU")
     private EntityManager em;
 
-    public EntrepriseFacadeREST() {
-        super(Entreprise.class);
+    public AuthentificationFacadeREST() {
+        super(Authentification.class);
     }
 
     @POST
     @Override
-    @Consumes({"application/json"})
-    public void create(Entreprise entity) {
+    @Consumes({"application/xml", "application/json"})
+    public void create(Authentification entity) {
         super.create(entity);
     }
 
     @PUT
     @Override
-    @Consumes({"application/json"})
-    public void edit(Entreprise entity) {
+    @Consumes({"application/xml", "application/json"})
+    public void edit(Authentification entity) {
         super.edit(entity);
     }
 
@@ -60,31 +54,22 @@ public class EntrepriseFacadeREST extends AbstractFacade<Entreprise> {
 
     @GET
     @Path("{id}")
-    @Produces({"application/json"})
-    public Entreprise find(@PathParam("id") String id) {
+    @Produces({"application/xml", "application/json"})
+    public Authentification find(@PathParam("id") String id) {
         return super.find(id);
     }
 
     @GET
-    @Path("nombreFiliale/{id}")
-    @Produces({"application/json"})
-    public Long nombreFiliale(@PathParam("id") String id) {
-        Query q = em.createNativeQuery("SELECT count(*) FROM filiale WHERE entreprise_id = '" + id + "'");
-        return (Long)q.getSingleResult();
-    }
-
-    @GET
-    @Path("findAll")
     @Override
-    @Produces({"application/json"})
-    public List<Entreprise> findAll() {
+    @Produces({"application/xml", "application/json"})
+    public List<Authentification> findAll() {
         return super.findAll();
     }
 
     @GET
     @Path("{from}/{to}")
-    @Produces({"application/json"})
-    public List<Entreprise> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
+    @Produces({"application/xml", "application/json"})
+    public List<Authentification> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) {
         return super.findRange(new int[]{from, to});
     }
 
@@ -99,4 +84,5 @@ public class EntrepriseFacadeREST extends AbstractFacade<Entreprise> {
     protected EntityManager getEntityManager() {
         return em;
     }
+    
 }

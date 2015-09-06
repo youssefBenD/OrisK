@@ -35,8 +35,6 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Pack.findByPrixHt", query = "SELECT p FROM Pack p WHERE p.prixHt = :prixHt"),
     @NamedQuery(name = "Pack.findByMaxImpaye", query = "SELECT p FROM Pack p WHERE p.maxImpaye = :maxImpaye")})
 public class Pack implements Serializable {
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pack")
-    private Collection<Abonnement> abonnementCollection;
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -44,16 +42,23 @@ public class Pack implements Serializable {
     @Size(min = 1, max = 2147483647)
     @Column(name = "pack_id")
     private String packId;
+    
     @Size(max = 2147483647)
     @Column(name = "libelle")
     private String libelle;
+    
     @Column(name = "max_filiales")
     private Integer maxFiliales;
+    
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "prix_ht")
     private Double prixHt;
+    
     @Column(name = "max_impaye")
     private Double maxImpaye;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "pack")
+    private Collection<Abonnement> abonnementCollection;
 
     public Pack() {
     }
