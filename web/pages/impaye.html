@@ -1,0 +1,113 @@
+<div class="jumbotron text-center">
+
+
+    <div  class="col-lg-12">
+        <div id="impayes" class="panel panel-default">
+            <div class="panel-heading">
+                <h3>Liste des Impayes</h3>
+            </div>
+            <div class="input-group custom-search-form">
+                <input class="form-control" ng-model="query" id="query" type="text"
+                       placeholder="Rechercher" autofocus>
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </span>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th><i class="fa fa-user-md"></i> Client </th>
+                                <th class="hidden-phone"><i class="fa fa-question-circle"></i> Type Client </th>
+                                <th><i class="fa fa-dollar"></i> Montant (dt)</th>
+                                <th><i class="fa fa-info"></i> Type Impaye </th>
+                                <th><i class="fa fa-calendar-o"></i> Date Echéance</th>
+                                <th><i class="fa fa-calendar-o"></i> Date Ajout</th>
+                                <th> détails</th>
+
+                            </tr>
+                        </thead>
+                        <tbody ng-repeat="i in impayes | filter:query | orderBy: 'clientId'">
+
+                        <td>{{ i.clientId }}</td>
+                        <td>{{ i.typeClient }}</td>
+                        <td>{{ i.montant }}</td>
+                        <td>{{ i.type }}</td>
+                        <td>{{ i.dateEcheance }}</td>
+                        <td>{{ i.dateAjout }}</td>
+                        <td>
+                            <button class="btn btn-info" ng-click="historique(i.clientId, i.filialeId)" data-toggle="modal" data-target="#myModal"><i class="fa fa-search-plus"></i></button>
+
+                        </td>
+
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+        <div  class="col-lg-12">
+            
+            <br>
+            <div hidden id="historique" class="panel panel-default">
+                 <button ng-click="close()" type="button" class="btn btn-outline btn-default">Close</button>
+          
+                <div class="panel-heading">
+                    <h2>{{ client.raisonFiscale}}</h2>
+                    <h4>{{ client.type }} </h4> 
+                    {{ client.clientId }}              
+                    <br>
+                    {{ client.email }} 
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <ul  class="timeline">
+
+                        <li ng-repeat="h in historiquesNonPayes">
+                            <div class="timeline-badge danger"><i class="fa fa-bomb"></i>
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h4 class="timeline-title">Montant : {{ h.montant }}</h4>
+                                    <p><small class="text-muted"><i class="fa fa-clock-o"></i> Date d'ajout {{ h.dataAjout }}</small>
+                                </div>
+                                <div class="timeline-body">
+                                    <p><i class="fa fa-clock-o"></i> Date Echéance : {{ h.dateEcheance }}</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li ng-repeat="h in historiquesPayes" class="timeline-inverted">
+                            <div class="timeline-badge warning"><i class="fa fa-credit-card"></i>
+                            </div>
+                            <div class="timeline-panel">
+                                <div class="timeline-heading">
+                                    <h4 class="timeline-title">Montant : {{ h.montant }}</h4>
+                                    <p><small class="text-muted"><i class="fa fa-clock-o"></i> Date d'ajout {{ h.dataAjout }}</small>
+                                </div>
+                                <div class="timeline-body">
+                                    <p><i class="fa fa-clock-o"></i> Date Echéance : {{ h.dateEcheance }}</p>
+                                    <p><i class="fa fa-clock-o"></i> Date Paiement : {{ h.datePaiement}}</p>
+                                     </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+
+        </div>
+
+
+
+    </div>
+
+</div>
+

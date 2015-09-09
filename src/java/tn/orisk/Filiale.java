@@ -5,6 +5,7 @@
 package tn.orisk;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.util.Collection;
 import javax.persistence.Basic;
@@ -68,10 +69,12 @@ public class Filiale implements Serializable {
     @Column(name = "code")
     private String code;
     
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filiale")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "filialeId")
+    @JsonManagedReference
     private Collection<Recherche> rechercheCollection;
     
     @OneToMany(mappedBy = "filialeId")
+    @JsonManagedReference
     private Collection<Impaye> impayeCollection;
     
     @JoinColumn(name = "entreprise_id", referencedColumnName = "entreprise_id")

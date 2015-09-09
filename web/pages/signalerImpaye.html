@@ -1,43 +1,122 @@
 <div class="jumbotron text-center">
-   <h1>Signaler Impaye</h1>
-   <div class="row mt">
-      <div class="col-lg-12">
-         <div class="form-panel">
-            <h4 class="mb"><i class="fa fa-angle-right"></i> Veuillez remplir les champs suivants:</h4>
-            <form ng-submit="submit()" name="sampleForm" class="form-horizontal style-form" novalidate >
-              
-               <div class="form-group">
-                  <label class="col-sm-2 col-sm-2 control-label">Identifiant Client</label>
-                  <div class="col-sm-10">
-                     <input ng-model="id" name="id" type="text" class="form-control round-form" required >
-                    <span ng-show="sampleForm.username.$error.required">Identifiant Client is required.</span>
+    <br>
+    <br>
+    <br>
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Signalement d'un Impayé {{ type }}
+            </div>
+            <div id="typeFormulaire" class="panel-body">
+                <form  name="sampleForm" class="form-horizontal style-form" novalidate >
 
-                  </div>
-               </div>
-                <div class="form-group">
-                  <label class="col-sm-2 col-sm-2 control-label">Montant</label>
-                  <div class="col-sm-10">
-                     <input ng-model="montant" name="montant" type="text" class="form-control round-form">
-                  </div>
-               </div>
-<!--                <div class="form-group">
-                  <label class="col-sm-2 col-sm-2 control-label">Type Client</label>
-                  <div class="col-sm-10">
-                     <select ng-model="type" class="form-control">
-						  <option>Personne Morale</option>
-						  <option>Personne Physique</option>
-                    </select>
-                  </div>
-               </div>-->
-                <button type="submit" id="submit" value="Submit" class="btn btn-primary btn-lg btn-block">Signaler</button>
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">Type Client</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon"><i class="fa fa-question"></i></span>
+                                <select ng-model="typeClient" class="form-control" >
+                                    <option selected="selected">Personne Morale</option>
+                                    <option>Personne Physique</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="centered">
+                        <button class="btn btn-primary" type="submit" ng-click="typeImpaye()">Suivant</button>
+                    </div>
 
-               
+                </form>
 
-               
-            </form>
-         </div>
-      </div>
-      <!-- col-lg-12-->      	
-   </div>
-   <!-- /row -->
+            </div>
+            <div hidden id="suiteFormulaire" class="panel-body">
+                <form name="sampleForm" class="form-horizontal style-form" novalidate >
+
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">{{ labelId }}</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon">@</span>
+                                <input ng-model="id" type="text" class="form-control" >
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">Montant</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon">$</span>
+                                <input ng-model="montant" type="text" class="form-control">
+                                <span class="input-group-addon">.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">Data Echéance</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input ng-model="dateEcheance" type="date" class="form-control">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">Type</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon"><i class="fa fa-question"></i></span>
+                                <select ng-model="typeImpaye" class="form-control" >
+                                    <option selected="selected">Cheque</option>
+                                    <option>Facture</option>
+                                    <option>Traite</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit" ng-click="annuler()">Annuler</button>
+                    <button class="btn btn-primary" type="submit" ng-click="demanderPassword()">Signaler</button>
+                    
+
+                </form>
+
+            </div>
+            <div hidden id="password" class="panel-body">
+                <form name="sampleForm" class="form-horizontal style-form" novalidate >
+
+                    <div class="form-group">
+                        <label class="col-sm-2 col-sm-2 control-label">Code</label>
+                        <div class="col-sm-8">
+                            <div class="form-group input-group">
+                                <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                                <input ng-model="code" type="password" class="form-control" >
+                            </div>
+
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="submit" ng-click="annuler()">Annuler</button>
+                    <button class="btn btn-primary" type="submit" ng-click="signalerImpaye()">Signaler</button>
+                    
+                </form>
+            </div>
+            <div class="panel-footer">
+                <div hidden id="succes" class="alert alert-success">
+                    Impayé Signalé avec succès ! 
+                </div>
+                <div hidden id="echec" class="alert alert-danger">
+                    Echec Signalement Impayé !
+                </div>
+                <div hidden id="codeIncorrect" class="alert alert-danger">
+                    Code Incorrect !
+                </div>
+                <div hidden id="maxImpayesDepasse" class="alert alert-danger">
+                    Max Impayés Dépassé !
+                </div>
+
+            </div>
+
+        </div>
+    </div>  	
 </div>

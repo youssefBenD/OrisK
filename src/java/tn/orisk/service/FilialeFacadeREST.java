@@ -20,7 +20,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import tn.orisk.Entreprise;
 import tn.orisk.Filiale;
-import tn.orisk.util.Util;
 
 /**
  *

@@ -24,7 +24,7 @@ public class DemoRESTRequestFilter implements ContainerRequestFilter {
     public void filter( ContainerRequestContext requestCtx ) throws IOException {
  
         String path = requestCtx.getUriInfo().getPath();
-        log.info( "Filtering request path: " + path );
+        log.info( "Filtrage requete chemin: " + path );
  
         // IMPORTANT!!! First, Acknowledge any pre-flight test from browsers for this case before validating the headers (CORS stuff)
         if ( requestCtx.getRequest().getMethod().equals( "OPTIONS" ) ) {
@@ -39,19 +39,18 @@ public class DemoRESTRequestFilter implements ContainerRequestFilter {
         
         if ( !demoAuthenticator.isServiceKeyValid( serviceKey ) ) {
             // Kick anyone without a valid service key
-            log.info( "Service Key " + serviceKey );
             requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
             return;
         }
  
         // For any pther methods besides login, the authToken must be verified
-        if ( path.startsWith( "demo-business-resource/login/" ) ) {
+        if ( !path.contains( "/login" ) ) {
             String authToken = requestCtx.getHeaderString( DemoHTTPHeaderNames.AUTH_TOKEN );
  
             // if it isn't valid, just kick them out.
             if ( !demoAuthenticator.isAuthTokenValid( serviceKey, authToken ) ) {
                 requestCtx.abortWith( Response.status( Response.Status.UNAUTHORIZED ).build() );
-                System.out.println("MOCHKLA auth "+authToken);
+                log.info( "AUTH_TOKEN Invalide"+authToken );
             }
         }
     }

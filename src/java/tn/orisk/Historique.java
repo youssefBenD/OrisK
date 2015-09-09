@@ -135,7 +135,8 @@ public class Historique implements Serializable {
 
     @Override
     public String toString() {
-        return "tn.zero.risk.Historique[ historiqueId=" + historiqueId + " ]";
+        return "Historique{" + "historiqueId=" + historiqueId + ", impayeId=" + impayeId + ", montant=" + montant + ", dateAjout=" + dateAjout + ", datePaiement=" + datePaiement + ", clientId=" + clientId + '}';
     }
+
     
 }

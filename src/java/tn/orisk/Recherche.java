@@ -7,9 +7,10 @@ package tn.orisk;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -17,6 +18,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -29,15 +31,23 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Recherche.findAll", query = "SELECT r FROM Recherche r"),
-    @NamedQuery(name = "Recherche.findByClientId", query = "SELECT r FROM Recherche r WHERE r.recherchePK.clientId = :clientId"),
-    @NamedQuery(name = "Recherche.findByFilialeId", query = "SELECT r FROM Recherche r WHERE r.recherchePK.filialeId = :filialeId"),
+    @NamedQuery(name = "Recherche.findByRechercheId", query = "SELECT r FROM Recherche r WHERE r.rechercheId = :rechercheId"),
+    @NamedQuery(name = "Recherche.findByClientId", query = "SELECT r FROM Recherche r WHERE r.clientId = :clientId"),
     @NamedQuery(name = "Recherche.findByDate", query = "SELECT r FROM Recherche r WHERE r.date = :date"),
-    @NamedQuery(name = "Recherche.findByCleRecherche", query = "SELECT r FROM Recherche r WHERE r.cleRecherche = :cleRecherche")})
+    @NamedQuery(name = "Recherche.findByCleRecherche", query = "SELECT r FROM Recherche r WHERE r.cleRecherche = :cleRecherche"),
+    @NamedQuery(name = "Recherche.findBySerial", query = "SELECT r FROM Recherche r WHERE r.serial = :serial")})
 public class Recherche implements Serializable {
-   
     private static final long serialVersionUID = 1L;
-    @EmbeddedId
-    protected RecherchePK recherchePK;
+    @Id
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 2147483647)
+    @Column(name = "recherche_id")
+    private String rechercheId;
+    
+    @Size(max = 2147483647)
+    @Column(name = "client_id")
+    private String clientId;
     
     @Column(name = "date")
     @Temporal(TemporalType.DATE)
@@ -47,33 +57,41 @@ public class Recherche implements Serializable {
     @Column(name = "cle_recherche")
     private String cleRecherche;
     
-    @JoinColumn(name = "filiale_id", referencedColumnName = "filiale_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    @JsonBackReference
-    private Filiale filiale;
+    @Basic(optional = false)
+    @Column(name = "serial")
+    private int serial;
     
-    @JoinColumn(name = "client_id", referencedColumnName = "client_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
+    @JoinColumn(name = "filiale_id", referencedColumnName = "filiale_id")
+    @ManyToOne
     @JsonBackReference
-    private Client client;
+    private Filiale filialeId;
 
     public Recherche() {
     }
 
-    public Recherche(RecherchePK recherchePK) {
-        this.recherchePK = recherchePK;
+    public Recherche(String rechercheId) {
+        this.rechercheId = rechercheId;
     }
 
-    public Recherche(String clientId, String filialeId) {
-        this.recherchePK = new RecherchePK(clientId, filialeId);
+    public Recherche(String rechercheId, int serial) {
+        this.rechercheId = rechercheId;
+        this.serial = serial;
     }
 
-    public RecherchePK getRecherchePK() {
-        return recherchePK;
+    public String getRechercheId() {
+        return rechercheId;
     }
 
-    public void setRecherchePK(RecherchePK recherchePK) {
-        this.recherchePK = recherchePK;
+    public void setRechercheId(String rechercheId) {
+        this.rechercheId = rechercheId;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 
     public Date getDate() {
@@ -92,10 +110,26 @@ public class Recherche implements Serializable {
         this.cleRecherche = cleRecherche;
     }
 
+    public int getSerial() {
+        return serial;
+    }
+
+    public void setSerial(int serial) {
+        this.serial = serial;
+    }
+
+    public Filiale getFilialeId() {
+        return filialeId;
+    }
+
+    public void setFilialeId(Filiale filialeId) {
+        this.filialeId = filialeId;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (recherchePK != null ? recherchePK.hashCode() : 0);
+        hash += (rechercheId != null ? rechercheId.hashCode() : 0);
         return hash;
     }
 
@@ -106,7 +140,7 @@ public class Recherche implements Serializable {
             return false;
         }
         Recherche other = (Recherche) object;
-        if ((this.recherchePK == null && other.recherchePK != null) || (this.recherchePK != null && !this.recherchePK.equals(other.recherchePK))) {
+        if ((this.rechercheId == null && other.rechercheId != null) || (this.rechercheId != null && !this.rechercheId.equals(other.rechercheId))) {
             return false;
         }
         return true;
@@ -114,23 +148,7 @@ public class Recherche implements Serializable {
 
     @Override
     public String toString() {
-        return "tn.zero.risk.Recherche[ recherchePK=" + recherchePK + " ]";
-    }
-
-    public Filiale getFiliale() {
-        return filiale;
-    }
-
-    public void setFiliale(Filiale filiale) {
-        this.filiale = filiale;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
+        return "tn.orisk.Recherche[ rechercheId=" + rechercheId + " ]";
     }
     
 }

@@ -18,6 +18,7 @@
     <link href="css/bootstrap.css" rel="stylesheet">
     <!--external css-->
     <link href="css/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/timeline.css" />
         
     <!-- Custom styles for this template -->
     <link href="css/style.css" rel="stylesheet">
@@ -47,7 +48,7 @@
             
             <div class="top-menu">
             	<ul class="nav pull-right top-menu">
-                    <li><a class="logout" href="login.html">Deconnexion</a></li>
+                    <li><a class="logout" href="#deconnexion">Deconnexion</a></li>
             	</ul>
             </div>
         </header>
@@ -62,35 +63,34 @@
               <!-- sidebar menu start-->
               <ul class="sidebar-menu" id="nav-accordion">
                   <li class="sub-menu">
-                      <a href="#">
-                          <i class="fa fa-dashboard"></i>
+                      <a href="#/">
+                          <i class="fa fa-desktop"></i>
                           <span>Accueil</span>
                       </a>
                   </li> 
-              	  
                   <li class="sub-menu">
-                      <a href="#">
-                          <i class="fa fa-dashboard"></i>
+                      <a href="#estimationRisque">
+                          <i class="fa fa-question"></i>
                           <span>Estimation Risque</span>
                       </a>
                   </li> 
-                  
                   <li class="sub-menu">
-                      <a href="javascript:;" >
-                          <i class="fa fa-times"></i>
-                          <span>Impayes</span>
+                      <a href="#impaye" >
+                          <i class="fa fa-times-circle"></i>
+                          <span>Impayes Societe</span>
                       </a>
-                      <ul class="sub">
-                          <li><a  href="#clients">Visualisation</a></li>
-                          <li><a  href="#signalerImpaye">Signalement</a></li>
-                      </ul>
+                  </li>
+                  <li class="sub-menu">
+                      <a href="#signalerImpaye" >
+                          <i class="fa fa-plus-circle"></i>
+                          <span>Signalement Impaye</span>
+                      </a>
                   </li>
                   <li class="sub-menu">
                       <a href="#abonnement" >
                           <i class="fa fa-briefcase"></i>
                           <span>Abonnement</span>
                       </a>
-                      
                   </li>
                  
               </ul>
@@ -135,6 +135,7 @@
       });
 
   </script>
+  
 
   </body>
 </html>

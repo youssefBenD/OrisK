@@ -41,7 +41,7 @@ myApp.controller('loginCtrl', function($scope, $http) {
  
                 },
                 error: function( xhr, textStatus, errorThrown ) {
-                    alert("Echec Authentification");
+                    alert("Email ou Password incorrect(s)");
                     console.log( "HTTP Status: " + xhr.status );
                     console.log( "Error textStatus: " + textStatus );
                     console.log( "Error thrown: " + errorThrown );

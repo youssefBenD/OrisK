@@ -8,10 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.NamingException;
@@ -67,7 +64,6 @@ public final class DemoAuthenticator {
 
     public String login(String serviceKey, String username, String password) throws LoginException {
         if (serviceKeysStorage.containsKey(serviceKey)) {
-
             CriteriaQuery cq;
             List<Filiale> filiales = null;
             List<Agent> agents = null;
@@ -89,6 +85,7 @@ public final class DemoAuthenticator {
             for (int i = 0; i < filiales.size(); i++) {
                 if (((Filiale) (filiales.get(i))).getEmail().equals(username)) {
                     filiale = (Filiale) filiales.get(i);
+                    System.out.println(filiale.toString());
                     trouveF = true;
                     break;
                 }
@@ -106,11 +103,10 @@ public final class DemoAuthenticator {
 
             if (trouveF) {
                 Query q;
-                String result= "";
+                String result = "";
                 try {
-                    q = getEntityManager().createNativeQuery("SELECT p.relname FROM filiale f, pg_class p WHERE f.tableoid = p.oid AND f.filiale_id ='"+filiale.getFilialeId()+"'");
+                    q = getEntityManager().createNativeQuery("SELECT p.relname FROM filiale f, pg_class p WHERE f.tableoid = p.oid AND f.filiale_id ='" + filiale.getFilialeId() + "'");
                     result = (String) q.getSingleResult();
-                    System.out.println("*********" + result);
                 } catch (NamingException ex) {
                     Logger.getLogger(DemoAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -125,7 +121,7 @@ public final class DemoAuthenticator {
                     } catch (NamingException ex) {
                         Logger.getLogger(DemoAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    return filiale.getFilialeId() + "/" + authToken + "/"+result;
+                    return filiale.getFilialeId() + "/" + authToken + "/" + result;
                 }
             } else {
                 if (trouveA) {
@@ -155,18 +151,16 @@ public final class DemoAuthenticator {
      * @return TRUE for acceptance and FALSE for denied.
      */
     public boolean isAuthTokenValid(String serviceKey, String authToken) {
-        if (isServiceKeyValid(serviceKey)) {
-            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
-
-            if (authorizationTokensStorage.containsKey(authToken)) {
-                String usernameMatch2 = authorizationTokensStorage.get(authToken);
-
-                if (usernameMatch1.equals(usernameMatch2)) {
-                    return true;
-                }
-            }
+        try {
+            Query q = getEntityManager().createNativeQuery("SELECT COUNT(*) FROM authentification WHERE auth_token='"+authToken+"'");
+            Long authTokenExist = (Long) q.getSingleResult();
+            if (authTokenExist!=0)
+                return true; 
+                        else 
+                return false;
+        } catch (NamingException ex) {
+            Logger.getLogger(DemoAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return false;
     }
 
@@ -182,25 +176,12 @@ public final class DemoAuthenticator {
     }
 
     public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
-        if (serviceKeysStorage.containsKey(serviceKey)) {
-            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
-
-            if (authorizationTokensStorage.containsKey(authToken)) {
-                String usernameMatch2 = authorizationTokensStorage.get(authToken);
-
-                if (usernameMatch1.equals(usernameMatch2)) {
-
-                    /**
-                     * When a client logs out, the authentication token will be
-                     * remove and will be made invalid.
-                     */
-                    authorizationTokensStorage.remove(authToken);
-                    return;
-                }
-            }
+        try {
+            Query q = getEntityManager().createNativeQuery("DELETE FROM authentification WHERE auth_token='"+authToken+"'");
+            q.executeUpdate();
+        } catch (NamingException ex) {
+            Logger.getLogger(DemoAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        throw new GeneralSecurityException("Invalid service key and authorization token match.");
     }
 
     public EntityManager getEm() {

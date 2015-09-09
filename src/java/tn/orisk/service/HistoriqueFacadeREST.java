@@ -4,10 +4,12 @@
  */
 package tn.orisk.service;
 
+import java.util.HashMap;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -57,6 +59,16 @@ public class HistoriqueFacadeREST extends AbstractFacade<Historique> {
     @Produces({"application/json"})
     public Historique find(@PathParam("id") String id) {
         return super.find(id);
+    }
+    
+    @PUT
+    @Path("listeHistorique")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    public List listeHistorique(Object o) {
+        HashMap<String, String> elmt = (HashMap<String, String>)o;
+        Query q = em.createNativeQuery("SELECT * FROM historique WHERE client_id='"+elmt.get("clientId")+"' AND filiale_id='"+elmt.get("filialeId")+"'");
+        return q.getResultList();
     }
 
     @GET

@@ -35,8 +35,6 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Client.findByEmail", query = "SELECT c FROM Client c WHERE c.email = :email"),
     @NamedQuery(name = "Client.findByType", query = "SELECT c FROM Client c WHERE c.type = :type")})
 public class Client implements Serializable {
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "client")
-    private Collection<Recherche> rechercheCollection;
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -130,17 +128,9 @@ public class Client implements Serializable {
 
     @Override
     public String toString() {
-        return "Client{" + "rechercheCollection=" + rechercheCollection + ", clientId=" + clientId + ", email=" + email + ", raisonFiscale=" + raisonFiscale + ", type=" + type + ", impayeCollection=" + impayeCollection + '}';
-    }
-    
-    
-
-    @XmlTransient
-    public Collection<Recherche> getRechercheCollection() {
-        return rechercheCollection;
+        return "Client{" + "clientId=" + clientId + ", email=" + email + ", raisonFiscale=" + raisonFiscale + ", type=" + type + ", impayeCollection=" + impayeCollection + '}';
     }
 
-    public void setRechercheCollection(Collection<Recherche> rechercheCollection) {
-        this.rechercheCollection = rechercheCollection;
-    }
+    
+    
 }

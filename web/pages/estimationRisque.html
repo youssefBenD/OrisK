@@ -1,0 +1,26 @@
+<div class="jumbotron text-center">
+    <h2>Recherche Impaye d'un client</h2>
+    <form class="form-login" >
+        <h2 class="form-login-heading">Saisir l'indentifiant du client</h2>
+        <div class="login-wrap">
+            <input type="text" ng-model="clientId" class="form-control" placeholder="identifiant" autofocus>
+            <br>
+            <button class="btn btn-theme btn-block" type="submit" ng-click="estimationRisque()"><i class="fa fa-lock"></i> Rechercher</button>
+            
+
+
+
+        </div>
+
+    </form>
+    <br>
+    <div hidden id="ok">
+        <img src="./images/validation-verte.gif" alt="Mountain View" style="width:150px;height:100px;">
+    </div>
+    <div hidden id="pasOk">
+        <img src="./images/red-cross.png" alt="Mountain View" style="width:150px;height:100px;">
+    </div>
+    
+
+</div>
+

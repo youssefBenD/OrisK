@@ -72,6 +72,14 @@ public class EntrepriseFacadeREST extends AbstractFacade<Entreprise> {
         Query q = em.createNativeQuery("SELECT count(*) FROM filiale WHERE entreprise_id = '" + id + "'");
         return (Long)q.getSingleResult();
     }
+    
+    @GET
+    @Path("validiteAbonnement/{id}")
+    @Produces({"application/json"})
+    public void validiteAbonnement(@PathParam("id") String entrepriseId) {
+        Query q = em.createNativeQuery("SELECT date_expiration FROM abonnement WHERE entreprise_id = '" + entrepriseId + "'");
+        System.out.println((String)q.getSingleResult());
+    }
 
     @GET
     @Path("findAll")

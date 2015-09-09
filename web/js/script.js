@@ -12,14 +12,24 @@ scotchApp.config(function($routeProvider) {
     })
 
     // route for the about page
-    .when('/clients', {
-        templateUrl: 'pages/clients.html',
-        controller: 'clientsController'
+    .when('/impaye', {
+        templateUrl: 'pages/impaye.html',
+        controller: 'impayeController'
     })
 
     .when('/abonnement', {
         templateUrl: 'pages/abonnement.html',
         controller: 'abonnementController'
+    })
+
+    .when('/estimationRisque', {
+        templateUrl: 'pages/estimationRisque.html',
+        controller: 'estimationRisqueController'
+    })
+
+    .when('/deconnexion', {
+        templateUrl: 'index.html',
+        controller: 'logoutController'
     })
 
     .when('/entreprises', {
@@ -60,187 +70,250 @@ scotchApp.controller('mainController', function($scope, $http) {
         })
         .success(function(response) {
             $scope.entreprise = response;
+            sessionStorage.entrepriseId = response.entrepriseId;
             if (role == "siege_social") {
                 var entreprise = jQuery.parseJSON(JSON.stringify(response));
                 $scope.filiale = entreprise.siegeSocialCollection;
                 $scope.role = role;
             }
-        }).
-    error(function(data, status, headers, config) {});
+            switch (role) {
+                case "siege_social":
+                    var entreprise = jQuery.parseJSON(JSON.stringify(response));
+                    $scope.filiale = entreprise.siegeSocialCollection;
+                    $scope.role = role;
+                    break;
+                case "filiale":
+                    var entreprise = jQuery.parseJSON(JSON.stringify(response));
+                    $scope.filiale = entreprise.siegeSocialCollection;
+                    $scope.role = role;
+                    break;
+
+            }
+        })
+        .error(function(data, status, headers, config) {});
 });
 
 scotchApp.controller('signalerImpayeController', function($scope, $http) {
-    $scope.submit = function() {
-        var currentDate = new Date();
-        var day = currentDate.getDate();
-        var month = currentDate.getMonth() + 1;
-        var year = currentDate.getFullYear();
-        console.log($scope.id);
+
+
+    $scope.typeImpaye = function() {
+        if ($scope.typeClient == "Personne Morale") {
+            $scope.labelId = "Matricule Fiscale";
+            $scope.type = "Personne Morale";
+        } else {
+            $scope.labelId = "CIN / Passeport";
+            $scope.type = "Personne Physique";
+        }
+        $("#typeFormulaire").hide();
+        $("#suiteFormulaire").show();
+    };
+
+    $scope.demanderPassword = function() {
+        $("#suiteFormulaire").hide();
+        $("#password").show();
+    };
+
+    $scope.annuler = function() {
+        $("#suiteFormulaire").hide();
+        $("#password").hide();
+        $("#typeFormulaire").show();
+    };
+
+    function formattedDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    $scope.signalerImpaye = function() {
+        $("#succes").hide();
+        $("#echec").hide();
+        $("#codeIncorrect").hide();
         var impaye = {
             montant: $scope.montant,
-            dateAjout: currentDate,
-            datePaiement: currentDate,
-            clientId: $scope.id
+            datePaiement: "2001-01-01",
+            clientId: $scope.id,
+            dateEcheance: formattedDate($scope.dateEcheance),
+            type: $scope.typeImpaye,
+            filialeId: sessionStorage.getItem("userId"),
+            typeClient: $scope.type,
+            code: $scope.code,
+            entrepriseId: sessionStorage.getItem("entrepriseId")
         }
+        console.log(JSON.stringify(impaye));
         $http({
-            url: 'http://localhost:8080/0risk/webresources/client/ajouterImpaye',
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            data: impaye
-        }).success(function(response) {
-            alert("signalement effectue avec succes ")
-        }).error(function(data, status, headers, config) {
-            alert("Erreur: " + status);
-        });
-        $scope.id = "";
-        $scope.montant = "";
+                url: "http://localhost:8080/0risk/webresources/impaye/ajout",
+                method: "POST",
+                dataType: 'json',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'service_key': "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                    'auth_token': sessionStorage.auth_token,
+                },
+                data: JSON.stringify(impaye)
+            })
+            .success(function(response) {
+                if (response === "Code Incorrect") {
+                    $("#codeIncorrect").show();
+                } else {
+                    if (response === "Max Impayes depasse") {
+                        $("#maxImpayesDepasse").show();
+                    } else {
+                        $scope.code = "";
+                        $("#password").hide();
+                        $("#typeFormulaire").show();
+                        $("#succes").show();
+
+                    }
+
+                }
+
+            })
+            .error(function(data, status, headers, config, response) {
+                console.log(response);
+                $("#echec").show();
+            });
+
     };
 
 });
 
-scotchApp.controller('clientsController', function($scope, $http) {
-    var dateFormat = function() {
-        var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-            timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
-            timezoneClip = /[^-+\dA-Z]/g,
-            pad = function(val, len) {
-                val = String(val);
-                len = len || 2;
-                while (val.length < len)
-                    val = "0" + val;
-                return val;
-            };
-
-        // Regexes and supporting functions are cached through closure
-        return function(date, mask, utc) {
-            var dF = dateFormat;
-
-            // You can't provide utc if you skip other args (use the "UTC:" mask prefix)
-            if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !/\d/.test(date)) {
-                mask = date;
-                date = undefined;
+scotchApp.controller('impayeController', function($scope, $http) {
+    var userId = sessionStorage.getItem("userId");
+    var role = sessionStorage.getItem("role");
+    var entrepriseId = sessionStorage.getItem("entrepriseId");
+    $http.get("http://localhost:8080/0risk/webresources/entreprise/" + entrepriseId, {
+            cache: false,
+            crossDomain: true,
+            headers: {
+                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                "auth_token": sessionStorage.auth_token
+            },
+            dataType: "json"
+        })
+        .success(function(response) {
+            var filiales = jQuery.parseJSON(JSON.stringify(response.filialeCollection));
+            var impayes = []
+            for (var i = 0; i < filiales.length; i++) {
+                for (var j = 0; j < filiales[i].impayeCollection.length; j++) {
+                    impayes.push(filiales[i].impayeCollection[j]);
+                }
             }
+            var postImpayes = JSON.stringify(impayes);
+            $http({
+                url: "http://localhost:8080/0risk/webresources/impaye/ajoutInfo",
+                method: "PUT",
+                contentType: "application/json",
+                headers: {
+                    "Content-Type": 'application/json',
+                    "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                    "auth_token": sessionStorage.auth_token,
+                },
+                data: postImpayes
+            }).then(function(response) {
+                var impayesTraites = jQuery.parseJSON(JSON.stringify(response.data));
+                for (var i = 0; i < impayesTraites.length; i++) {
+                    impayesTraites[i].dateAjout = formattedDate(impayesTraites[i].dateAjout);
+                    impayesTraites[i].dateEcheance = formattedDate(impayesTraites[i].dateEcheance);
+                }
+                $scope.impayes = impayesTraites;
 
-            // Passing date through Date applies Date.parse, if necessary
-            date = date ? new Date(date) : new Date;
-            if (isNaN(date))
-                throw SyntaxError("invalid date");
-
-            mask = String(dF.masks[mask] || mask || dF.masks["default"]);
-
-            // Allow setting the utc argument via the mask
-            if (mask.slice(0, 4) == "UTC:") {
-                mask = mask.slice(4);
-                utc = true;
-            }
-
-            var _ = utc ? "getUTC" : "get",
-                d = date[_ + "Date"](),
-                D = date[_ + "Day"](),
-                m = date[_ + "Month"](),
-                y = date[_ + "FullYear"](),
-                H = date[_ + "Hours"](),
-                M = date[_ + "Minutes"](),
-                s = date[_ + "Seconds"](),
-                L = date[_ + "Milliseconds"](),
-                o = utc ? 0 : date.getTimezoneOffset(),
-                flags = {
-                    d: d,
-                    dd: pad(d),
-                    ddd: dF.i18n.dayNames[D],
-                    dddd: dF.i18n.dayNames[D + 7],
-                    m: m + 1,
-                    mm: pad(m + 1),
-                    mmm: dF.i18n.monthNames[m],
-                    mmmm: dF.i18n.monthNames[m + 12],
-                    yy: String(y).slice(2),
-                    yyyy: y,
-                    h: H % 12 || 12,
-                    hh: pad(H % 12 || 12),
-                    H: H,
-                    HH: pad(H),
-                    M: M,
-                    MM: pad(M),
-                    s: s,
-                    ss: pad(s),
-                    l: pad(L, 3),
-                    L: pad(L > 99 ? Math.round(L / 10) : L),
-                    t: H < 12 ? "a" : "p",
-                    tt: H < 12 ? "am" : "pm",
-                    T: H < 12 ? "A" : "P",
-                    TT: H < 12 ? "AM" : "PM",
-                    Z: utc ? "UTC" : (String(date).match(timezone) || [""]).pop().replace(timezoneClip, ""),
-                    o: (o > 0 ? "-" : "+") + pad(Math.floor(Math.abs(o) / 60) * 100 + Math.abs(o) % 60, 4),
-                    S: ["th", "st", "nd", "rd"][d % 10 > 3 ? 0 : (d % 100 - d % 10 != 10) * d % 10]
-                };
-
-            return mask.replace(token, function($0) {
-                return $0 in flags ? flags[$0] : $0.slice(1, $0.length - 1);
+            }, function(response) {
+                console.log("Echec connexion");
             });
-        };
-    }();
-
-    // Some common format strings
-    dateFormat.masks = {
-        "default": "ddd mmm dd yyyy HH:MM:ss",
-        shortDate: "m/d/yy",
-        mediumDate: "mmm d, yyyy",
-        longDate: "mmmm d, yyyy",
-        fullDate: "dddd, mmmm d, yyyy",
-        shortTime: "h:MM TT",
-        mediumTime: "h:MM:ss TT",
-        longTime: "h:MM:ss TT Z",
-        isoDate: "yyyy-mm-dd",
-        isoTime: "HH:MM:ss",
-        isoDateTime: "yyyy-mm-dd'T'HH:MM:ss",
-        isoUtcDateTime: "UTC:yyyy-mm-dd'T'HH:MM:ss'Z'"
-    };
-
-    // Internationalization strings
-    dateFormat.i18n = {
-        dayNames: [
-            "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-            "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"
-        ],
-        monthNames: [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-            "Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"
-        ]
-    };
-
-    // For convenience...
-    Date.prototype.format = function(mask, utc) {
-        return dateFormat(this, mask, utc);
-    };
-
-    $http({
-        method: 'get',
-        url: "http://localhost:8080/0risk/webresources/client/findAll",
-        params: {
-            date: $scope.currentDate
-        },
-        headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-        }
-    }).success(function(response) {
-        var clients = jQuery.parseJSON(JSON.stringify(response));
-        for (var i = 0; i < clients.length; i++) {
-            if (typeof clients[i].impayeCollection[0] != 'undefined') {
-                var dateAjout = clients[i].impayeCollection[0].dateAjout;
-                newDateAjout = new Date(dateAjout);
-                clients[i].impayeCollection[0].dateAjout = newDateAjout;
-                clients[i].impayeCollection[0].datePaiement = newDateAjout;
-            };
-        };
-        $scope.clients = clients;
-    }).error(function(data, status, headers, config) {
-        alert("Connexion Failed");
-    });
 
 
+        })
+        .error(function(data, status, headers, config) {});
+
+    $scope.historique = function(clientId, filialeId) {
+        $("#impayes").hide("slow");
+        $("#historique").show();
+        $http.get("http://localhost:8080/0risk/webresources/client/" + clientId, {
+                cache: false,
+                crossDomain: true,
+                headers: {
+                    "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                    "auth_token": sessionStorage.auth_token
+                },
+                dataType: "json"
+            })
+            .success(function(response) {
+                $scope.client = response;
+            })
+            .error(function(data, status, headers, config) {
+                console.log("Echec connexion");
+            });
+
+        $http({
+            url: "http://localhost:8080/0risk/webresources/historique/listeHistorique",
+            method: "PUT",
+            contentType: "application/json",
+            headers: {
+                "Content-Type": 'application/json',
+                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                "auth_token": sessionStorage.auth_token,
+            },
+            data: {
+                'clientId': clientId,
+                'filialeId': userId
+            }
+        }).then(function(response) {
+            result = response.data;
+            var historiquesNonPayes = [];
+            var historiquesPayes = [];
+            for (var i = 0; i < result.length; i++) {
+                if (formattedDate(result[i][4]) === "01/01/2001") {
+                    var historiqueNonPaye = {
+                        "montant": result[i][2],
+                        "dataAjout": formattedDate(result[i][3]),
+                        "datePaiement": formattedDate(result[i][4]),
+                        "clientId": result[i][5],
+                        "dateEcheance": formattedDate(result[i][6])
+                    };
+                    historiquesNonPayes.push(historiqueNonPaye);
+
+                } else {
+                    var historiquePaye = {
+                        "montant": result[i][2],
+                        "dataAjout": formattedDate(result[i][3]),
+                        "datePaiement": formattedDate(result[i][4]),
+                        "clientId": result[i][5],
+                        "dateEcheance": formattedDate(result[i][6])
+                    };
+                    historiquesPayes.push(historiquePaye);
+                }
+
+            }
+            $scope.historiquesNonPayes = historiquesNonPayes;
+            $scope.historiquesPayes = historiquesPayes;
+        }, function(response) {
+            console.log("Echec connexion");
+        });
+
+    }
+
+    function formattedDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [day, month, year].join('/');
+    }
 
     $scope.deleteImpaye = function(clientId) {
         $http({
@@ -255,6 +328,11 @@ scotchApp.controller('clientsController', function($scope, $http) {
         }, function(response) {
             alert("Impayé non effacé");
         });
+    }
+
+    $scope.close = function() {
+        $("#impayes").show("slow");
+        $("#historique").hide();
     }
 
 
@@ -287,6 +365,66 @@ scotchApp.controller('clientsController', function($scope, $http) {
 
 scotchApp.controller('contactController', function($scope) {
     $scope.message = 'Contact us! JK. This is just a demo.';
+});
+
+scotchApp.controller('logoutController', function($scope) {
+    $.ajax({
+        cache: false,
+        crossDomain: true,
+        headers: {
+            "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+            "auth_token": sessionStorage.auth_token
+        },
+        url: "http://localhost:8080/0risk/webresources/security/logout/",
+        type: "POST",
+        success: function(jsonObj, textStatus, xhr) {
+            sessionStorage.clear();
+            var href = window.location.href;
+            hrefRes = href.split("0risk");
+            document.location.href=hrefRes[0]+"/0risk/index.html"; 
+            
+        },
+        error: function(xhr, textStatus, errorThrown) {
+            sessionStorage.clear();
+            document.location.href=hrefRes[0]+"/0risk/index.html"; 
+            console.log("HTTP Status: " + xhr.status);
+            console.log("Error textStatus: " + textStatus);
+            console.log("Error thrown: " + errorThrown);
+        }
+    });
+});
+
+scotchApp.controller('estimationRisqueController', function($scope, $http) {
+    $scope.estimationRisque = function(clientId) {
+        $("#pasOk").hide();
+        $("#ok").hide();
+        $http({
+            url: "http://localhost:8080/0risk/webresources/impaye/evaluerRisque",
+            method: "PUT",
+            contentType: "application/json",
+            headers: {
+                "Content-Type": 'application/json',
+                "service_key": "3b91cab8-926f-49b6-ba00-920bcf934c2a",
+                "auth_token": sessionStorage.auth_token,
+            },
+            data: {
+                'clientId': $scope.clientId,
+                'filialeId': sessionStorage.getItem("userId")
+            }
+        }).then(function(response) {
+            if (response.data > 0) {
+                $("#pasOk").show();
+            } else {
+                $("#ok").show();
+            }
+
+        }, function(response) {
+            console.log("Echec connexion");
+        });
+
+    }
+
+
 });
 
 scotchApp.controller('abonnementController', function($scope, $http) {
@@ -329,7 +467,7 @@ scotchApp.controller('abonnementController', function($scope, $http) {
                             dataType: "json"
                         })
                         .success(function(response) {
-                            console.log("*****"+response);
+                            $scope.nbrFiliale = response;
                         }).
                     error(function(data, status, headers, config) {
                         console.log("Erreur Connexion")
@@ -341,8 +479,10 @@ scotchApp.controller('abonnementController', function($scope, $http) {
                             day = '' + d.getDate(),
                             year = d.getFullYear();
 
-                        if (month.length < 2) month = '0' + month;
-                        if (day.length < 2) day = '0' + day;
+                        if (month.length < 2)
+                            month = '0' + month;
+                        if (day.length < 2)
+                            day = '0' + day;
 
                         return [day, month, year].join('/');
                     }
